@@ -1,0 +1,75 @@
+spring:
+  redis:
+    host: 192.168.95.130
+    port: 6379
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    platform: mysql
+    url: jdbc:mysql://192.168.95.130/biu?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false  #如果使用router，请写router的url即可。
+    username: root
+    password: Qq123321.
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT1FROMDUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    filters: stat,wall,log4j
+    logSlowSql: true
+  application:
+    name: consum
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  tomcat:
+    basedir: ./
+    accesslog:
+      enabled: true
+      prefix: access
+      suffix: .log
+      pattern: '${spring.application.name} %{yyyy-MM-dd HH:mm:ss}t|%A|%a|%p|%m|%s|%D|%b|%{begin:msec}t|%{end:msec}t|^_^|%{X-Request-ID}i|%{X-Request-Seq}i|^_^|%S|%r|%{Referer}i|%{User-Agent}i'
+      file-date-format: .yyyy-MM-dd
+      buffered: true
+      rename-on-rotate: true
+      directory: logs
+      rotate: true
+      request-attributes-enabled: true
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+mapper:
+  not-empty: false
+  identity: MYSQL
+  mappers: com.zsq.gateway.dao
+
+hystrix:
+  metrics:
+    polling-interval-ms: 2000
+
+ribbon:
+  eureka:
+    enabled: false
+zuul:
+  ratelimit:
+    enabled: true
+    repository: REDIS
+    behind-proxy: true
+    policies:
+      hello:
+        limit: 10
+        quota: 1000
+        refresh-interval: 60
+        type: ORIGIN
+  routes:
+    test:
+      path: /api/test/**
+hello:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
